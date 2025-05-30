@@ -1,0 +1,411 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>কাজি টেলিকম</title>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Hind Siliguri', sans-serif;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            color: #333;
+        }
+        .header {
+            background: linear-gradient(90deg, #00AEEF, #007BFF);
+            color: white;
+            text-align: center;
+            padding: 15px;
+            border-radius: 0 0 15px 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            font-size: 28px;
+            font-weight: 700;
+        }
+        .subheading {
+            color: #007BFF;
+            text-align: center;
+            margin: 15px 0;
+            font-size: 20px;
+        }
+        .search-bar {
+            margin: 10px auto;
+            width: 90%;
+            max-width: 400px;
+        }
+        .search-bar input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            font-size: 16px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .page, .form-container {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+        }
+        .contact-entry {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background: white;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s;
+        }
+        .contact-entry:hover {
+            transform: translateY(-2px);
+        }
+        .avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #00AEEF, #007BFF);
+            border-radius: 50%;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+        }
+        .contact-info {
+            flex: 1;
+            font-size: 16px;
+        }
+        .copy-btn {
+            background-color: #00AEEF;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .copy-btn:hover {
+            background-color: #007BFF;
+        }
+        .form-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            align-self: center;
+        }
+        .form-field {
+            width: 90%;
+            max-width: 400px;
+            margin: 10px 0;
+        }
+        .form-field label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+        .form-field input, .form-field select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .form-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .add-btn {
+            background-color: #00AEEF;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        .add-btn:hover {
+            background-color: #007BFF;
+        }
+        .cancel-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        .cancel-btn:hover {
+            background-color: #c82333;
+        }
+        .nav-bar {
+            background: linear-gradient(90deg, #00AEEF, #007BFF);
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .nav-item {
+            flex: 1;
+            color: white;
+            text-align: center;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        .nav-item:hover {
+            color: #f0f4f8;
+        }
+        .nav-item i {
+            font-size: 22px;
+            margin-bottom: 5px;
+        }
+        .search-icon {
+            flex: 1;
+            color: white;
+            text-align: center;
+            cursor: pointer;
+            font-size: 22px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">কাজী টেলিকম</div>
+
+    <div id="home" class="page">
+        <h2 class="subheading">হোম</h2>
+        <div class="search-bar">
+            <input type="text" id="mainSearch" placeholder="সকল ডাটা সার্চ করুন" onkeyup="searchAll()">
+        </div>
+        <div id="allContacts"></div>
+    </div>
+
+    <div id="meter" class="page" style="display: none;">
+        <h2 class="subheading">মিটার নাম্বার</h2>
+        <div class="search-bar">
+            <input type="text" id="meterSearch" placeholder="মিটার নাম্বার খুঁজুন" onkeyup="searchMeter()">
+        </div>
+        <div id="meterContacts"></div>
+        <button class="add-btn" onclick="showForm('meter')">নতুন মিটার নাম্বার যোগ করুন</button>
+    </div>
+
+    <div id="mobile" class="page" style="display: none;">
+        <h2 class="subheading">মোবাইল নাম্বার</h2>
+        <div class="search-bar">
+            <input type="text" id="mobileSearch" placeholder="মোবাইল নাম্বার খুঁজুন" onkeyup="searchMobile()">
+        </div>
+        <div id="mobileContacts"></div>
+        <button class="add-btn" onclick="showForm('mobile')">নতুন মোবাইল নাম্বার যোগ করুন</button>
+    </div>
+
+    <div id="search" class="page" style="display: none;">
+        <h2 class="subheading">সার্চ রেজাল্ট</h2>
+        <div id="searchResults"></div>
+    </div>
+
+    <div class="form-container" id="formContainer" style="display: none;">
+        <h2 class="subheading">নতুন ডাটা যোগ করুন</h2>
+        <div class="form-field">
+            <label>টাইপ</label>
+            <select id="type">
+                <option value="meter">মিটার নাম্বার</option>
+                <option value="mobile">মোবাইল নাম্বার</option>
+            </select>
+        </div>
+        <div class="form-field">
+            <label>নাম</label>
+            <input type="text" id="name" placeholder="নাম লিখুন">
+        </div>
+        <div class="form-field">
+            <label>নাম্বার</label>
+            <input type="text" id="number" placeholder="নাম্বার লিখুন">
+        </div>
+        <div class="form-buttons">
+            <button class="add-btn" onclick="addContact()">যোগ করুন</button>
+            <button class="cancel-btn" onclick="showPage('home')">বাতিল</button>
+        </div>
+    </div>
+
+    <div class="nav-bar">
+        <div class="nav-item" onclick="showPage('home')">
+            <i>🏠</i><br>হোম
+        </div>
+        <div class="nav-item" onclick="showPage('meter')">
+            <i>📏</i><br>মিটার
+        </div>
+        <div class="nav-item" onclick="showPage('mobile')">
+            <i>📞</i><br>মোবাইল
+        </div>
+        <div class="search-icon" onclick="openSearch()">
+            <i class="fas fa-search"></i>
+        </div>
+    </div>
+
+    <script>
+        let meterContacts = JSON.parse(localStorage.getItem('meterContacts')) || [];
+        let mobileContacts = JSON.parse(localStorage.getItem('mobileContacts')) || [];
+
+        document.getElementById('home').style.display = 'block';
+        updateDisplays();
+
+        function showPage(pageId) {
+            document.getElementById('home').style.display = 'none';
+            document.getElementById('meter').style.display = 'none';
+            document.getElementById('mobile').style.display = 'none';
+            document.getElementById('search').style.display = 'none';
+            document.getElementById('formContainer').style.display = 'none';
+            document.getElementById(pageId).style.display = 'block';
+        }
+
+        function openSearch() {
+            showPage('home');
+            document.getElementById('mainSearch').focus();
+        }
+
+        function searchAll() {
+            let input = document.getElementById('mainSearch').value.toLowerCase();
+            let allContacts = meterContacts.concat(mobileContacts);
+            let filtered = allContacts.filter(contact => 
+                contact.name.toLowerCase().includes(input) || contact.number.includes(input)
+            );
+            displayContacts('allContacts', filtered);
+        }
+
+        function searchMeter() {
+            let input = document.getElementById('meterSearch').value.toLowerCase();
+            let filtered = meterContacts.filter(contact => 
+                contact.name.toLowerCase().includes(input) || contact.number.includes(input)
+            );
+            displayContacts('meterContacts', filtered);
+        }
+
+        function searchMobile() {
+            let input = document.getElementById('mobileSearch').value.toLowerCase();
+            let filtered = mobileContacts.filter(contact => 
+                contact.name.toLowerCase().includes(input) || contact.number.includes(input)
+            );
+            displayContacts('mobileContacts', filtered);
+        }
+
+        function displayContacts(containerId, contacts) {
+            let container = document.getElementById(containerId);
+            container.innerHTML = '';
+            contacts.forEach(contact => {
+                let entry = document.createElement('div');
+                entry.className = 'contact-entry';
+                entry.innerHTML = `
+                    <div class="avatar">${contact.name.charAt(0).toUpperCase()}</div>
+                    <div class="contact-info">
+                        <div>${contact.name} - ${contact.type === 'meter' ? 'মিটার' : 'মোবাইল'}</div>
+                        <div>${contact.number}</div>
+                    </div>
+                    <button class="copy-btn" onclick="copyToClipboard('${contact.number}')">কপি</button>
+                `;
+                container.appendChild(entry);
+            });
+        }
+
+        function showForm(type) {
+            document.getElementById('type').value = type;
+            let heading = type === 'meter' ? 'নতুন মিটার নাম্বার যোগ করুন' : 'নতুন মোবাইল নাম্বার যোগ করুন';
+            document.querySelector('#formContainer .subheading').textContent = heading;
+            clearForm();
+            showPage('formContainer');
+        }
+
+        function addContact() {
+            let type = document.getElementById('type').value;
+            let name = document.getElementById('name').value;
+            let number = document.getElementById('number').value;
+
+            if (name && number) {
+                let contact = { name, number, type };
+                if (type === 'meter') {
+                    meterContacts.push(contact);
+                    localStorage.setItem('meterContacts', JSON.stringify(meterContacts));
+                } else {
+                    mobileContacts.push(contact);
+                    localStorage.setItem('mobileContacts', JSON.stringify(mobileContacts));
+                }
+                clearForm();
+                showPage(type);
+                updateDisplays();
+                alert('নতুন নাম্বার যোগ করা হয়েছে!');
+            } else {
+                alert('অনুগ্রহ করে নাম এবং নাম্বার পূরণ করুন।');
+            }
+        }
+
+        function clearForm() {
+            document.getElementById('name').value = '';
+            document.getElementById('number').value = '';
+        }
+
+        function updateDisplays() {
+            displayContacts('allContacts', meterContacts.concat(mobileContacts));
+            displayContacts('meterContacts', meterContacts);
+            displayContacts('mobileContacts', mobileContacts);
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('নাম্বার কপি করা হয়েছে: ' + text);
+            });
+        }
+    </script>
+</body>
+</html>
