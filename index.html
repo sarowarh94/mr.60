@@ -1,43 +1,4 @@
-<script type="text/javascript">
-        var gk_isXlsx = false;
-        var gk_xlsxFileLookup = {};
-        var gk_fileData = {};
-        function filledCell(cell) {
-          return cell !== '' && cell != null;
-        }
-        function loadFileData(filename) {
-        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-            try {
-                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-                var firstSheetName = workbook.SheetNames[0];
-                var worksheet = workbook.Sheets[firstSheetName];
-
-                // Convert sheet to JSON to filter blank rows
-                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
-                var filteredData = jsonData.filter(row => row.some(filledCell));
-
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
-                var headerRowIndex = filteredData.findIndex((row, index) =>
-                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-                );
-                // Fallback
-                if (headerRowIndex === -1 || headerRowIndex > 25) {
-                  headerRowIndex = 0;
-                }
-
-                // Convert filtered JSON back to CSV
-                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
-                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-                return csv;
-            } catch (e) {
-                console.error(e);
-                return "";
-            }
-        }
-        return gk_fileData[filename] || "";
-        }
-        </script><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
@@ -84,6 +45,7 @@
             border-radius: 20px;
             font-size: 16px;
             box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+            font-family: 'Hind Siliguri', sans-serif;
         }
         .page, .form-container {
             flex: 1;
@@ -119,7 +81,7 @@
             flex: 1;
             font-size: 16px;
         }
-        .copy-btn {
+        .copy-btn, .edit-btn {
             background-color: #00AEEF;
             color: white;
             border: none;
@@ -127,8 +89,10 @@
             border-radius: 10px;
             cursor: pointer;
             transition: background 0.3s;
+            font-family: 'Hind Siliguri', sans-serif;
+            margin-left: 5px;
         }
-        .copy-btn:hover {
+        .copy-btn:hover, .edit-btn:hover {
             background-color: #007BFF;
         }
         .form-container {
@@ -157,6 +121,7 @@
             border: 1px solid #ddd;
             border-radius: 5px;
             font-size: 16px;
+            font-family: 'Hind Siliguri', sans-serif;
         }
         .form-buttons {
             display: flex;
@@ -164,7 +129,7 @@
             gap: 10px;
             margin-top: 20px;
         }
-        .add-btn {
+        .add-btn, .cancel-btn {
             background-color: #00AEEF;
             color: white;
             border: none;
@@ -173,19 +138,13 @@
             cursor: pointer;
             font-size: 16px;
             transition: background 0.3s;
+            font-family: 'Hind Siliguri', sans-serif;
         }
-        .add-btn:hover {
+        .add-btn:hover, .cancel-btn:hover {
             background-color: #007BFF;
         }
         .cancel-btn {
             background-color: #dc3545;
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background 0.3s;
         }
         .cancel-btn:hover {
             background-color: #c82333;
@@ -206,6 +165,7 @@
             text-align: center;
             cursor: pointer;
             transition: color 0.3s;
+            font-size: 14px;
         }
         .nav-item:hover {
             color: #f0f4f8;
@@ -213,13 +173,18 @@
         .nav-item i {
             font-size: 22px;
             margin-bottom: 5px;
+            color: #FFFFFF;
         }
         .search-icon {
             flex: 1;
             color: white;
             text-align: center;
             cursor: pointer;
+            font-size: 14px;
+        }
+        .search-icon i {
             font-size: 22px;
+            color: #FFFFFF;
         }
     </style>
 </head>
@@ -258,10 +223,10 @@
     </div>
 
     <div class="form-container" id="formContainer" style="display: none;">
-        <h2 class="subheading">নতুন ডাটা যোগ করুন</h2>
+        <h2 class="subheading" id="formHeading">নতুন ডাটা যোগ করুন</h2>
         <div class="form-field">
             <label>টাইপ</label>
-            <select id="type">
+            <select id="type" disabled>
                 <option value="meter">মিটার নাম্বার</option>
                 <option value="mobile">মোবাইল নাম্বার</option>
             </select>
@@ -275,7 +240,7 @@
             <input type="text" id="number" placeholder="নাম্বার লিখুন">
         </div>
         <div class="form-buttons">
-            <button class="add-btn" onclick="addContact()">যোগ করুন</button>
+            <button class="add-btn" id="formSubmitBtn" onclick="addOrUpdateContact()">যোগ করুন</button>
             <button class="cancel-btn" onclick="showPage('home')">বাতিল</button>
         </div>
     </div>
@@ -291,13 +256,15 @@
             <i>📞</i><br>মোবাইল
         </div>
         <div class="search-icon" onclick="openSearch()">
-            <i class="fas fa-search"></i>
+            <i class="fas fa-search"></i><br>সার্চ
         </div>
     </div>
 
     <script>
         let meterContacts = JSON.parse(localStorage.getItem('meterContacts')) || [];
         let mobileContacts = JSON.parse(localStorage.getItem('mobileContacts')) || [];
+        let editIndex = null;
+        let editType = null;
 
         document.getElementById('home').style.display = 'block';
         updateDisplays();
@@ -322,7 +289,7 @@
             let filtered = allContacts.filter(contact => 
                 contact.name.toLowerCase().includes(input) || contact.number.includes(input)
             );
-            displayContacts('allContacts', filtered);
+            displayContacts('allContacts', filtered, 'home');
         }
 
         function searchMeter() {
@@ -330,7 +297,7 @@
             let filtered = meterContacts.filter(contact => 
                 contact.name.toLowerCase().includes(input) || contact.number.includes(input)
             );
-            displayContacts('meterContacts', filtered);
+            displayContacts('meterContacts', filtered, 'meter');
         }
 
         function searchMobile() {
@@ -338,56 +305,88 @@
             let filtered = mobileContacts.filter(contact => 
                 contact.name.toLowerCase().includes(input) || contact.number.includes(input)
             );
-            displayContacts('mobileContacts', filtered);
+            displayContacts('mobileContacts', filtered, 'mobile');
         }
 
-        function displayContacts(containerId, contacts) {
+        function displayContacts(containerId, contacts, pageType) {
             let container = document.getElementById(containerId);
             container.innerHTML = '';
-            contacts.forEach(contact => {
+            contacts.forEach((contact, index) => {
                 let entry = document.createElement('div');
                 entry.className = 'contact-entry';
+                let buttons = `<button class="copy-btn" onclick="copyToClipboard('${contact.number}')">কপি</button>`;
+                if (pageType === 'meter' || pageType === 'mobile') {
+                    buttons += `<button class="edit-btn" onclick="editContact('${contact.type}', ${index})">এডিট</button>`;
+                }
                 entry.innerHTML = `
                     <div class="avatar">${contact.name.charAt(0).toUpperCase()}</div>
                     <div class="contact-info">
                         <div>${contact.name} - ${contact.type === 'meter' ? 'মিটার' : 'মোবাইল'}</div>
                         <div>${contact.number}</div>
                     </div>
-                    <button class="copy-btn" onclick="copyToClipboard('${contact.number}')">কপি</button>
+                    ${buttons}
                 `;
                 container.appendChild(entry);
             });
         }
 
-        function showForm(type) {
+        function showForm(type, index = null) {
+            editIndex = index;
+            editType = type;
             document.getElementById('type').value = type;
-            let heading = type === 'meter' ? 'নতুন মিটার নাম্বার যোগ করুন' : 'নতুন মোবাইল নাম্বার যোগ করুন';
-            document.querySelector('#formContainer .subheading').textContent = heading;
-            clearForm();
+            document.getElementById('type').disabled = true;
+            if (index !== null) {
+                let contacts = type === 'meter' ? meterContacts : mobileContacts;
+                let contact = contacts[index];
+                document.getElementById('name').value = contact.name;
+                document.getElementById('number').value = contact.number;
+                document.getElementById('formHeading').textContent = 'ডাটা এডিট করুন';
+                document.getElementById('formSubmitBtn').textContent = 'আপডেট করুন';
+            } else {
+                document.getElementById('formHeading').textContent = 'নতুন ডাটা যোগ করুন';
+                document.getElementById('formSubmitBtn').textContent = 'যোগ করুন';
+                clearForm();
+            }
             showPage('formContainer');
         }
 
-        function addContact() {
+        function addOrUpdateContact() {
             let type = document.getElementById('type').value;
             let name = document.getElementById('name').value;
             let number = document.getElementById('number').value;
 
             if (name && number) {
                 let contact = { name, number, type };
-                if (type === 'meter') {
-                    meterContacts.push(contact);
-                    localStorage.setItem('meterContacts', JSON.stringify(meterContacts));
+                if (editIndex !== null) {
+                    if (type === 'meter') {
+                        meterContacts[editIndex] = contact;
+                        localStorage.setItem('meterContacts', JSON.stringify(meterContacts));
+                    } else {
+                        mobileContacts[editIndex] = contact;
+                        localStorage.setItem('mobileContacts', JSON.stringify(mobileContacts));
+                    }
+                    editIndex = null;
+                    editType = null;
                 } else {
-                    mobileContacts.push(contact);
-                    localStorage.setItem('mobileContacts', JSON.stringify(mobileContacts));
+                    if (type === 'meter') {
+                        meterContacts.push(contact);
+                        localStorage.setItem('meterContacts', JSON.stringify(meterContacts));
+                    } else {
+                        mobileContacts.push(contact);
+                        localStorage.setItem('mobileContacts', JSON.stringify(mobileContacts));
+                    }
                 }
                 clearForm();
                 showPage(type);
                 updateDisplays();
-                alert('নতুন নাম্বার যোগ করা হয়েছে!');
+                alert(editIndex !== null ? 'ডাটা আপডেট করা হয়েছে!' : 'নতুন নাম্বার যোগ করা হয়েছে!');
             } else {
                 alert('অনুগ্রহ করে নাম এবং নাম্বার পূরণ করুন।');
             }
+        }
+
+        function editContact(type, index) {
+            showForm(type, index);
         }
 
         function clearForm() {
@@ -396,9 +395,9 @@
         }
 
         function updateDisplays() {
-            displayContacts('allContacts', meterContacts.concat(mobileContacts));
-            displayContacts('meterContacts', meterContacts);
-            displayContacts('mobileContacts', mobileContacts);
+            displayContacts('allContacts', meterContacts.concat(mobileContacts), 'home');
+            displayContacts('meterContacts', meterContacts, 'meter');
+            displayContacts('mobileContacts', mobileContacts, 'mobile');
         }
 
         function copyToClipboard(text) {
