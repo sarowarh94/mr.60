@@ -27,11 +27,23 @@
             font-size: 28px;
             font-weight: 700;
         }
+        .subtitle {
+            color: white;
+            text-align: center;
+            margin-top: 5px;
+            font-size: 16px;
+            font-weight: 400;
+        }
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 15px 0;
+        }
         .subheading {
             color: #007BFF;
-            text-align: center;
-            margin: 15px 0;
             font-size: 20px;
+            margin: 0;
         }
         .search-bar {
             margin: 10px auto;
@@ -197,7 +209,10 @@
     </style>
 </head>
 <body>
-    <div class="header">কাজী টেলিকম</div>
+    <div class="header">
+        কাজি টেলিকম
+        <div class="subtitle">আপনার জন্য পরিষ্কার আকাশ ও পরিষ্কার মন কামনা করছি</div>
+    </div>
 
     <div id="home" class="page">
         <h2 class="subheading">হোম</h2>
@@ -208,21 +223,25 @@
     </div>
 
     <div id="meter" class="page" style="display: none;">
-        <h2 class="subheading">মিটার নাম্বার</h2>
+        <div class="page-header">
+            <h2 class="subheading">মিটার নাম্বার</h2>
+            <button class="add-btn" onclick="showForm('meter')">নতুন মিটার নাম্বার যোগ করুন</button>
+        </div>
         <div class="search-bar">
             <input type="text" id="meterSearch" placeholder="মিটার নাম্বার খুঁজুন" onkeyup="searchMeter()">
         </div>
         <div id="meterContacts"></div>
-        <button class="add-btn" onclick="showForm('meter')">নতুন মিটার নাম্বার যোগ করুন</button>
     </div>
 
     <div id="mobile" class="page" style="display: none;">
-        <h2 class="subheading">মোবাইল নাম্বার</h2>
+        <div class="page-header">
+            <h2 class="subheading">মোবাইল নাম্বার</h2>
+            <button class="add-btn" onclick="showForm('mobile')">নতুন মোবাইল নাম্বার যোগ করুন</button>
+        </div>
         <div class="search-bar">
             <input type="text" id="mobileSearch" placeholder="মোবাইল নাম্বার খুঁজুন" onkeyup="searchMobile()">
         </div>
         <div id="mobileContacts"></div>
-        <button class="add-btn" onclick="showForm('mobile')">নতুন মোবাইল নাম্বার যোগ করুন</button>
     </div>
 
     <div id="search" class="page" style="display: none;">
@@ -259,7 +278,7 @@
             <i class="fas fa-home"></i><br>হোম
         </div>
         <div class="nav-item" onclick="showPage('meter')">
-            <i class="fas fa-hashtag"></i><br>মিটার
+            <i class="fas fa-bolt"></i><br>মিটার
         </div>
         <div class="nav-item" onclick="showPage('mobile')">
             <i class="fas fa-mobile-alt"></i><br>মোবাইল
@@ -351,7 +370,7 @@
                 document.getElementById('name').value = contact.name;
                 document.getElementById('number').value = contact.number;
                 document.getElementById('formHeading').textContent = 'ডাটা এডিট করুন';
-                document.getElementById('formSubmitBtn').textContent = 'আপডেট করুন';
+                document.getElementById('formSubmitBtn').textContent = 'আপডেট';
                 document.getElementById('formDeleteBtn').style.display = 'inline-block';
             } else {
                 document.getElementById('formHeading').textContent = 'নতুন ডাটা যোগ করুন';
@@ -391,7 +410,7 @@
                 clearForm();
                 showPage(type);
                 updateDisplays();
-                alert(editIndex !== null ? 'ডাটা আপডেট করা হয়েছে!' : 'নতুন নাম্বার যোগ করা হয়েছে!');
+                alert(editIndex === null ? 'নতুন নাম্বার যোগ করা হয়েছে!' : 'ডাটা আপডেট করা হয়েছে!');
             } else {
                 alert('অনুগ্রহ করে নাম এবং নাম্বার পূরণ করুন।');
             }
@@ -411,12 +430,13 @@
                     localStorage.setItem('mobileContacts', JSON.stringify(mobileContacts));
                 }
                 updateDisplays();
+                showPage(type);
                 alert('ডাটা ডিলিট করা হয়েছে!');
             }
         }
 
         function deleteContactFromForm() {
-            if (confirm('আপনি কি এই ডাটা ডিলিট করতে চান?')) {
+            if (editType && editIndex !== null && confirm('আপনি কি এই ডাটা ডিলিট করতে চান?')) {
                 if (editType === 'meter') {
                     meterContacts.splice(editIndex, 1);
                     localStorage.setItem('meterContacts', JSON.stringify(meterContacts));
@@ -426,6 +446,7 @@
                 }
                 editIndex = null;
                 editType = null;
+                clearForm();
                 showPage('home');
                 updateDisplays();
                 alert('ডাটা ডিলিট করা হয়েছে!');
