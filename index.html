@@ -50,8 +50,8 @@
         .page, .form-container {
             flex: 1;
             padding: 15px;
+            padding-bottom: 60px;
             overflow-y: auto;
-            padding-bottom: 60px; /* নেভিগেশন বারের উচ্চতা অনুযায়ী */
         }
         .contact-entry {
             display: flex;
@@ -82,7 +82,7 @@
             flex: 1;
             font-size: 16px;
         }
-        .copy-btn, .edit-btn {
+        .copy-btn, .edit-btn, .delete-btn {
             background-color: #00AEEF;
             color: white;
             border: none;
@@ -96,6 +96,12 @@
         .copy-btn:hover, .edit-btn:hover {
             background-color: #007BFF;
         }
+        .delete-btn {
+            background-color: #dc3545;
+        }
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
         .form-container {
             display: none;
             flex-direction: column;
@@ -104,6 +110,7 @@
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             padding: 20px;
+            padding-bottom: 60px;
             align-self: center;
         }
         .form-field {
@@ -243,18 +250,19 @@
         <div class="form-buttons">
             <button class="add-btn" id="formSubmitBtn" onclick="addOrUpdateContact()">যোগ করুন</button>
             <button class="cancel-btn" onclick="showPage('home')">বাতিল</button>
+            <button class="delete-btn" id="formDeleteBtn" onclick="deleteContactFromForm()" style="display: none;">ডিলিট</button>
         </div>
     </div>
 
     <div class="nav-bar">
         <div class="nav-item" onclick="showPage('home')">
-            <i>🏠</i><br>হোম
+            <i class="fas fa-home"></i><br>হোম
         </div>
         <div class="nav-item" onclick="showPage('meter')">
-            <i>📏</i><br>মিটার
+            <i class="fas fa-hashtag"></i><br>মিটার
         </div>
         <div class="nav-item" onclick="showPage('mobile')">
-            <i>📞</i><br>মোবাইল
+            <i class="fas fa-mobile-alt"></i><br>মোবাইল
         </div>
         <div class="search-icon" onclick="openSearch()">
             <i class="fas fa-search"></i><br>সার্চ
@@ -318,6 +326,7 @@
                 let buttons = `<button class="copy-btn" onclick="copyToClipboard('${contact.number}')">কপি</button>`;
                 if (pageType === 'meter' || pageType === 'mobile') {
                     buttons += `<button class="edit-btn" onclick="editContact('${contact.type}', ${index})">এডিট</button>`;
+                    buttons += `<button class="delete-btn" onclick="deleteContact('${contact.type}', ${index})">ডিলিট</button>`;
                 }
                 entry.innerHTML = `
                     <div class="avatar">${contact.name.charAt(0).toUpperCase()}</div>
@@ -343,9 +352,11 @@
                 document.getElementById('number').value = contact.number;
                 document.getElementById('formHeading').textContent = 'ডাটা এডিট করুন';
                 document.getElementById('formSubmitBtn').textContent = 'আপডেট করুন';
+                document.getElementById('formDeleteBtn').style.display = 'inline-block';
             } else {
                 document.getElementById('formHeading').textContent = 'নতুন ডাটা যোগ করুন';
                 document.getElementById('formSubmitBtn').textContent = 'যোগ করুন';
+                document.getElementById('formDeleteBtn').style.display = 'none';
                 clearForm();
             }
             showPage('formContainer');
@@ -388,6 +399,37 @@
 
         function editContact(type, index) {
             showForm(type, index);
+        }
+
+        function deleteContact(type, index) {
+            if (confirm('আপনি কি এই ডাটা ডিলিট করতে চান?')) {
+                if (type === 'meter') {
+                    meterContacts.splice(index, 1);
+                    localStorage.setItem('meterContacts', JSON.stringify(meterContacts));
+                } else if (type === 'mobile') {
+                    mobileContacts.splice(index, 1);
+                    localStorage.setItem('mobileContacts', JSON.stringify(mobileContacts));
+                }
+                updateDisplays();
+                alert('ডাটা ডিলিট করা হয়েছে!');
+            }
+        }
+
+        function deleteContactFromForm() {
+            if (confirm('আপনি কি এই ডাটা ডিলিট করতে চান?')) {
+                if (editType === 'meter') {
+                    meterContacts.splice(editIndex, 1);
+                    localStorage.setItem('meterContacts', JSON.stringify(meterContacts));
+                } else if (editType === 'mobile') {
+                    mobileContacts.splice(editIndex, 1);
+                    localStorage.setItem('mobileContacts', JSON.stringify(mobileContacts));
+                }
+                editIndex = null;
+                editType = null;
+                showPage('home');
+                updateDisplays();
+                alert('ডাটা ডিলিট করা হয়েছে!');
+            }
         }
 
         function clearForm() {
