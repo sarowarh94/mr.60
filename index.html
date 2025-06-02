@@ -7,28 +7,88 @@
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
+        :root {
+            --background-color: #f0f4f8;
+            --text-color: #333;
+            --header-background: linear-gradient(90deg, #00AEEF, #007BFF);
+            --header-text-color: white;
+            --nav-background: linear-gradient(90deg, #00AEEF, #007BFF);
+            --nav-text-color: white;
+            --nav-active-color: #00AEEF;
+            --subheading-color: #007BFF;
+            --contact-background: white;
+            --contact-text-color: #333;
+            --form-background: white;
+            --form-text-color: #333;
+            --button-background: #00AEEF;
+            --button-text-color: white;
+            --delete-button-background: #dc3545;
+            --delete-button-text-color: white;
+            --input-border-color: #ddd;
+            --input-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+            --avatar-background: linear-gradient(135deg, #00AEEF, #007BFF);
+            --avatar-text-color: white;
+            --placeholder-color: #aaa;
+        }
+
+        body.dark-mode {
+            --background-color: #121212;
+            --text-color: #f0f4f8;
+            --header-background: linear-gradient(90deg, #222, #444);
+            --header-text-color: white;
+            --nav-background: linear-gradient(90deg, #222, #444);
+            --nav-text-color: white;
+            --nav-active-color: #00AEEF;
+            --subheading-color: #00AEEF;
+            --contact-background: #333;
+            --contact-text-color: white;
+            --form-background: #333;
+            --form-text-color: white;
+            --button-background: #007BFF;
+            --button-text-color: white;
+            --delete-button-background: #c82333;
+            --delete-button-text-color: white;
+            --input-border-color: #555;
+            --input-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+            --avatar-background: linear-gradient(135deg, #00AEEF, #007BFF);
+            --avatar-text-color: white;
+            --placeholder-color: #ccc;
+        }
+
         body {
             font-family: 'Hind Siliguri', sans-serif;
-            background-color: #f0f4f8;
+            background-color: var(--background-color);
             margin: 0;
             padding: 0;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            color: #333;
+            color: var(--text-color);
         }
         .header {
-            background: linear-gradient(90deg, #00AEEF, #007BFF);
-            color: white;
+            background: var(--header-background);
+            color: var(--header-text-color);
             text-align: center;
             padding: 15px;
             border-radius: 0 0 15px 15px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             font-size: 28px;
             font-weight: 700;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header .title {
+            flex: 1;
+            text-align: center;
+        }
+        .header .mode-toggle {
+            cursor: pointer;
+            font-size: 24px;
+            margin-right: 15px;
         }
         .subtitle {
-            color: white;
+            color: var(--header-text-color);
             text-align: center;
             margin-top: 5px;
             font-size: 16px;
@@ -41,23 +101,44 @@
             margin: 15px 0;
         }
         .subheading {
-            color: #007BFF;
+            color: var(--subheading-color);
             font-size: 20px;
             margin: 0;
         }
         .search-bar {
+            position: relative;
             margin: 10px auto;
             width: 90%;
             max-width: 400px;
         }
+        .search-bar i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-color);
+            transition: color 0.3s, transform 0.3s;
+        }
         .search-bar input {
             width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
+            padding: 12px 12px 12px 40px;
+            border: 1px solid var(--input-border-color);
             border-radius: 20px;
             font-size: 16px;
-            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--input-box-shadow);
             font-family: 'Hind Siliguri', sans-serif;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .search-bar input::placeholder {
+            color: var(--placeholder-color);
+        }
+        .search-bar input:focus {
+            border-color: var(--button-background);
+            box-shadow: 0 0 5px var(--button-background);
+        }
+        .search-bar:focus-within i {
+            color: var(--button-background);
+            transform: translateY(-50%) scale(1.2);
         }
         .page, .form-container {
             flex: 1;
@@ -69,11 +150,12 @@
             display: flex;
             align-items: center;
             padding: 10px;
-            background: white;
+            background: var(--contact-background);
             border-radius: 10px;
             margin-bottom: 10px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
             transition: transform 0.2s;
+            color: var(--contact-text-color);
         }
         .contact-entry:hover {
             transform: translateY(-2px);
@@ -81,13 +163,13 @@
         .avatar {
             width: 40px;
             height: 40px;
-            background: linear-gradient(135deg, #00AEEF, #007BFF);
+            background: var(--avatar-background);
             border-radius: 50%;
             margin-right: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
+            color: var(--avatar-text-color);
             font-size: 18px;
         }
         .contact-info {
@@ -95,8 +177,8 @@
             font-size: 16px;
         }
         .copy-btn, .edit-btn, .delete-btn {
-            background-color: #00AEEF;
-            color: white;
+            background-color: var(--button-background);
+            color: var(--button-text-color);
             border: none;
             padding: 5px 15px;
             border-radius: 10px;
@@ -109,7 +191,7 @@
             background-color: #007BFF;
         }
         .delete-btn {
-            background-color: #dc3545;
+            background-color: var(--delete-button-background);
         }
         .delete-btn:hover {
             background-color: #c82333;
@@ -118,12 +200,13 @@
             display: none;
             flex-direction: column;
             align-items: center;
-            background-color: white;
+            background-color: var(--form-background);
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             padding: 20px;
             padding-bottom: 60px;
             align-self: center;
+            color: var(--form-text-color);
         }
         .form-field {
             width: 90%;
@@ -138,10 +221,13 @@
         .form-field input, .form-field select {
             width: 100%;
             padding: 10px;
-            border: 1px solid #ddd;
+            border: 1px solid var(--input-border-color);
             border-radius: 5px;
             font-size: 16px;
             font-family: 'Hind Siliguri', sans-serif;
+        }
+        .form-field input::placeholder {
+            color: var(--placeholder-color);
         }
         .form-buttons {
             display: flex;
@@ -150,8 +236,8 @@
             margin-top: 20px;
         }
         .add-btn, .cancel-btn {
-            background-color: #00AEEF;
-            color: white;
+            background-color: var(--button-background);
+            color: var(--button-text-color);
             border: none;
             padding: 12px 25px;
             border-radius: 10px;
@@ -164,13 +250,13 @@
             background-color: #007BFF;
         }
         .cancel-btn {
-            background-color: #dc3545;
+            background-color: var(--delete-button-background);
         }
         .cancel-btn:hover {
             background-color: #c82333;
         }
         .nav-bar {
-            background: linear-gradient(90deg, #00AEEF, #007BFF);
+            background: var(--nav-background);
             display: flex;
             align-items: center;
             padding: 10px;
@@ -178,45 +264,45 @@
             bottom: 0;
             width: 100%;
             box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
         }
         .nav-item {
             flex: 1;
-            color: white;
+            color: var(--nav-text-color);
             text-align: center;
             cursor: pointer;
-            transition: color 0.3s;
+            transition: background-color 0.3s, color 0.3s;
             font-size: 14px;
         }
         .nav-item:hover {
-            color: #f0f4f8;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .nav-item.active {
+            color: var(--nav-active-color);
         }
         .nav-item i {
             font-size: 22px;
             margin-bottom: 5px;
-            color: #FFFFFF;
-        }
-        .search-icon {
-            flex: 1;
-            color: white;
-            text-align: center;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        .search-icon i {
-            font-size: 22px;
-            color: #FFFFFF;
+            color: var(--nav-text-color);
         }
     </style>
 </head>
-<body>
+<body class="dark-mode">
     <div class="header">
-        কাজি টেলিকম
-        <div class="subtitle">আপনার জন্য পরিষ্কার আকাশ ও পরিষ্কার মন কামনা করছি</div>
+        <div class="title">
+            কাজি টেলিকম
+            <div class="subtitle">আপনার জন্য পরিষ্কার আকাশ ও পরিষ্কার মন কামনা করছি</div>
+        </div>
+        <div class="mode-toggle" onclick="toggleMode()">
+            <i id="modeIcon" class="fas fa-sun"></i>
+        </div>
     </div>
 
     <div id="home" class="page">
         <h2 class="subheading">হোম</h2>
         <div class="search-bar">
+            <i class="fas fa-search"></i>
             <input type="text" id="mainSearch" placeholder="সকল ডাটা সার্চ করুন" onkeyup="searchAll()">
         </div>
         <div id="allContacts"></div>
@@ -228,6 +314,7 @@
             <button class="add-btn" onclick="showForm('meter')">নতুন মিটার নাম্বার যোগ করুন</button>
         </div>
         <div class="search-bar">
+            <i class="fas fa-search"></i>
             <input type="text" id="meterSearch" placeholder="মিটার নাম্বার খুঁজুন" onkeyup="searchMeter()">
         </div>
         <div id="meterContacts"></div>
@@ -239,6 +326,7 @@
             <button class="add-btn" onclick="showForm('mobile')">নতুন মোবাইল নাম্বার যোগ করুন</button>
         </div>
         <div class="search-bar">
+            <i class="fas fa-search"></i>
             <input type="text" id="mobileSearch" placeholder="মোবাইল নাম্বার খুঁজুন" onkeyup="searchMobile()">
         </div>
         <div id="mobileContacts"></div>
@@ -274,21 +362,55 @@
     </div>
 
     <div class="nav-bar">
-        <div class="nav-item" onclick="showPage('home')">
+        <div class="nav-item" data-page="home" onclick="showPage('home')">
             <i class="fas fa-home"></i><br>হোম
         </div>
-        <div class="nav-item" onclick="showPage('meter')">
+        <div class="nav-item" data-page="meter" onclick="showPage('meter')">
             <i class="fas fa-bolt"></i><br>মিটার
         </div>
-        <div class="nav-item" onclick="showPage('mobile')">
+        <div class="nav-item" data-page="mobile" onclick="showPage('mobile')">
             <i class="fas fa-mobile-alt"></i><br>মোবাইল
         </div>
-        <div class="search-icon" onclick="openSearch()">
+        <div class="nav-item search-nav" onclick="openSearch()">
             <i class="fas fa-search"></i><br>সার্চ
         </div>
     </div>
 
     <script>
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex));
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+
         let meterContacts = JSON.parse(localStorage.getItem('meterContacts')) || [];
         let mobileContacts = JSON.parse(localStorage.getItem('mobileContacts')) || [];
         let editIndex = null;
@@ -297,6 +419,18 @@
         document.getElementById('home').style.display = 'block';
         updateDisplays();
 
+        // Apply saved mode from localStorage
+        const savedMode = localStorage.getItem('mode');
+        if (savedMode === 'dark') {
+            document.body.classList.add('dark-mode');
+            document.getElementById('modeIcon').classList.remove('fa-moon');
+            document.getElementById('modeIcon').classList.add('fa-sun');
+        } else {
+            document.body.classList.remove('dark-mode');
+            document.getElementById('modeIcon').classList.remove('fa-sun');
+            document.getElementById('modeIcon').classList.add('fa-moon');
+        }
+
         function showPage(pageId) {
             document.getElementById('home').style.display = 'none';
             document.getElementById('meter').style.display = 'none';
@@ -304,11 +438,38 @@
             document.getElementById('search').style.display = 'none';
             document.getElementById('formContainer').style.display = 'none';
             document.getElementById(pageId).style.display = 'block';
+
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            const activeItem = document.querySelector(`.nav-item[data-page="${pageId}"]`);
+            if (activeItem) {
+                activeItem.classList.add('active');
+            }
         }
 
         function openSearch() {
             showPage('home');
             document.getElementById('mainSearch').focus();
+            const searchNavItem = document.querySelector('.search-nav');
+            searchNavItem.classList.add('active');
+            setTimeout(() => {
+                searchNavItem.classList.remove('active');
+            }, 300);
+        }
+
+        function toggleMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            localStorage.setItem('mode', isDarkMode ? 'dark' : 'light');
+            const modeIcon = document.getElementById('modeIcon');
+            if (isDarkMode) {
+                modeIcon.classList.remove('fa-moon');
+                modeIcon.classList.add('fa-sun');
+            } else {
+                modeIcon.classList.remove('fa-sun');
+                modeIcon.classList.add('fa-moon');
+            }
         }
 
         function searchAll() {
