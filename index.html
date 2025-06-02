@@ -12,9 +12,12 @@
             --text-color: #333;
             --header-background: linear-gradient(90deg, #00AEEF, #007BFF);
             --header-text-color: white;
+
+            /* নেভ বার আইকন/টেক্সট সবসময় সাদা রাখতে হবে */
             --nav-background: linear-gradient(90deg, #00AEEF, #007BFF);
             --nav-text-color: white;
-            --nav-active-color: #00AEEF;
+            --nav-active-color: #007BFF;
+
             --subheading-color: #007BFF;
             --contact-background: white;
             --contact-text-color: #333;
@@ -36,9 +39,12 @@
             --text-color: #f0f4f8;
             --header-background: linear-gradient(90deg, #222, #444);
             --header-text-color: white;
+
+            /* নেভ বার আইকন/টেক্সট সবসময় সাদা থাকবে */
             --nav-background: linear-gradient(90deg, #222, #444);
             --nav-text-color: white;
             --nav-active-color: #00AEEF;
+
             --subheading-color: #00AEEF;
             --contact-background: #333;
             --contact-text-color: white;
@@ -65,6 +71,7 @@
             min-height: 100vh;
             color: var(--text-color);
         }
+
         .header {
             background: var(--header-background);
             color: var(--header-text-color);
@@ -94,22 +101,47 @@
             font-size: 16px;
             font-weight: 400;
         }
+
+        /* .page-এ সব পেইজের এক্সটার্নাল প্যাডিং থাকবে 15px */
+        .page, .form-container {
+            flex: 1;
+            padding: 15px;
+            padding-bottom: 60px;
+            overflow-y: auto;
+        }
+
+        /* ========== হোম পেজের জন্য স্পেসিফিক স্টাইলসমূহ ========== */
+        #home .subheading {
+            width: 100%;
+            text-align: center;  /* “হোম” টেক্সটকে কেন্দ্রভাগে এলাইমেন্ট */
+        }
+        #home .search-bar {
+            margin: 10px auto 15px auto;  /* সার্চ বক্সকে কেন্দ্রের দিকে নিয়ে যায় */
+        }
+
         .page-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin: 15px 0;
+            flex-wrap: wrap;
         }
+
+        /* subheading-এর flex:1 মুছে দেওয়া হয়েছে */
         .subheading {
             color: var(--subheading-color);
             font-size: 20px;
             margin: 0;
+            /* flex: 1; */
         }
+
+        /* সার্চ বক্স: সর্বোচ্চ 100% এর ভিতরেই থাকবে, কিন্তু
+           data-fit করার জন্য max-width: 300px দেওয়া হলো */
         .search-bar {
             position: relative;
-            margin: 15px auto;
-            width: 90%;
-            max-width: 400px;
+            width: 100%;
+            max-width: 300px; /* মোবাইলের স্ট্যান্ডার্ড অনুযায়ী কমিয়ে দেওয়া হলো */
+            margin: 10px 0 15px 0; /* হোম পেজ ছাড়া অন্য জায়গাতেও একই থাকবে */
         }
         .search-bar i {
             position: absolute;
@@ -140,12 +172,7 @@
             color: var(--button-background);
             transform: translateY(-50%) scale(1.2);
         }
-        .page, .form-container {
-            flex: 1;
-            padding: 15px;
-            padding-bottom: 60px;
-            overflow-y: auto;
-        }
+
         .contact-entry {
             display: flex;
             align-items: center;
@@ -186,6 +213,7 @@
             transition: background 0.3s;
             font-family: 'Hind Siliguri', sans-serif;
             margin-left: 5px;
+            white-space: nowrap;
         }
         .copy-btn:hover, .edit-btn:hover {
             background-color: #007BFF;
@@ -196,10 +224,12 @@
         .delete-btn:hover {
             background-color: #c82333;
         }
+
+        /* ========== ফর্মের জন্য স্টাইলসমূহ ========== */
         .form-container {
             display: none;
             flex-direction: column;
-            align-items: center;
+            align-items: center; /* ইনপুট বক্সগুলোকে কেন্দ্রভাগে রাখার জন্য */
             background-color: var(--form-background);
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -207,10 +237,20 @@
             padding-bottom: 60px;
             align-self: center;
             color: var(--form-text-color);
-        }
-        .form-field {
+            max-width: 500px;
+            margin: 0 auto;
             width: 90%;
-            max-width: 400px;
+        }
+        /* ফর্মের হেডিং (নতুন/এডিট) কে পুরো প্রস্থে কেন্দ্রভাগে দেখাবে */
+        #formHeading {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        /* সব .form-field-এ একই প্রস্থ ঠিক করার জন্য: */
+        .form-field {
+            width: 100%;
+            max-width: 300px; /* ৩টি ইনপুট বক্সের প্রস্থ এক করে */
             margin: 10px 0;
         }
         .form-field label {
@@ -234,6 +274,7 @@
             justify-content: center;
             gap: 10px;
             margin-top: 20px;
+            flex-wrap: wrap;
         }
         .add-btn, .cancel-btn {
             background-color: var(--button-background);
@@ -245,6 +286,7 @@
             font-size: 16px;
             transition: background 0.3s;
             font-family: 'Hind Siliguri', sans-serif;
+            white-space: nowrap;
         }
         .add-btn:hover, .cancel-btn:hover {
             background-color: #007BFF;
@@ -255,6 +297,7 @@
         .cancel-btn:hover {
             background-color: #c82333;
         }
+
         .nav-bar {
             background: var(--nav-background);
             display: flex;
@@ -299,6 +342,7 @@
         </div>
     </div>
 
+    <!-- হোম পেজ -->
     <div id="home" class="page">
         <h2 class="subheading">হোম</h2>
         <div class="search-bar">
@@ -308,6 +352,7 @@
         <div id="allContacts"></div>
     </div>
 
+    <!-- মিটার পেজ -->
     <div id="meter" class="page" style="display: none;">
         <div class="page-header">
             <h2 class="subheading">মিটার নাম্বার</h2>
@@ -320,6 +365,7 @@
         <div id="meterContacts"></div>
     </div>
 
+    <!-- মোবাইল পেজ -->
     <div id="mobile" class="page" style="display: none;">
         <div class="page-header">
             <h2 class="subheading">মোবাইল নাম্বার</h2>
@@ -332,13 +378,17 @@
         <div id="mobileContacts"></div>
     </div>
 
+    <!-- সার্চ রেজাল্ট পেজ (প্রয়োজনমতো দেখানো হবে) -->
     <div id="search" class="page" style="display: none;">
         <h2 class="subheading">সার্চ রেজাল্ট</h2>
         <div id="searchResults"></div>
     </div>
 
+    <!-- ফর্ম কন্টেইনার -->
     <div class="form-container" id="formContainer" style="display: none;">
         <h2 class="subheading" id="formHeading">নতুন ডাটা যোগ করুন</h2>
+
+        <!-- টাইপ সিলেক্ট -->
         <div class="form-field">
             <label>টাইপ</label>
             <select id="type" disabled>
@@ -346,14 +396,19 @@
                 <option value="mobile">মোবাইল নাম্বার</option>
             </select>
         </div>
+
+        <!-- নাম ইনপুট -->
         <div class="form-field">
             <label>নাম</label>
             <input type="text" id="name" placeholder="নাম লিখুন">
         </div>
+
+        <!-- নাম্বার ইনপুট -->
         <div class="form-field">
             <label>নাম্বার</label>
             <input type="text" id="number" placeholder="নাম্বার লিখুন">
         </div>
+
         <div class="form-buttons">
             <button class="add-btn" id="formSubmitBtn" onclick="addOrUpdateContact()">যোগ করুন</button>
             <button class="cancel-btn" onclick="showPage('home')">বাতিল</button>
@@ -361,6 +416,7 @@
         </div>
     </div>
 
+    <!-- ন্যাভিগেশন বার -->
     <div class="nav-bar">
         <div class="nav-item" data-page="home" onclick="showPage('home')">
             <i class="fas fa-home"></i><br>হোম
@@ -384,31 +440,31 @@
           return cell !== '' && cell != null;
         }
         function loadFileData(filename) {
-        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-            try {
-                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-                var firstSheetName = workbook.SheetNames[0];
-                var worksheet = workbook.Sheets[firstSheetName];
+            if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+                try {
+                    var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                    var firstSheetName = workbook.SheetNames[0];
+                    var worksheet = workbook.Sheets[firstSheetName];
 
-                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                var filteredData = jsonData.filter(row => row.some(filledCell));
+                    var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                    var filteredData = jsonData.filter(row => row.some(filledCell));
 
-                var headerRowIndex = filteredData.findIndex((row, index) =>
-                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-                );
-                if (headerRowIndex === -1 || headerRowIndex > 25) {
-                  headerRowIndex = 0;
+                    var headerRowIndex = filteredData.findIndex((row, index) =>
+                      row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                    );
+                    if (headerRowIndex === -1 || headerRowIndex > 25) {
+                      headerRowIndex = 0;
+                    }
+
+                    var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex));
+                    csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                    return csv;
+                } catch (e) {
+                    console.error(e);
+                    return "";
                 }
-
-                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex));
-                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-                return csv;
-            } catch (e) {
-                console.error(e);
-                return "";
             }
-        }
-        return gk_fileData[filename] || "";
+            return gk_fileData[filename] || "";
         }
 
         let meterContacts = JSON.parse(localStorage.getItem('meterContacts')) || [];
