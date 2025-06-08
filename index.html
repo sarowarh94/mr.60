@@ -12,12 +12,9 @@
             --text-color: #333;
             --header-background: linear-gradient(90deg, #00AEEF, #007BFF);
             --header-text-color: white;
-
-            /* নেভ বার আইকন/টেক্সট সবসময় সাদা রাখতে হবে */
             --nav-background: linear-gradient(90deg, #00AEEF, #007BFF);
             --nav-text-color: white;
             --nav-active-color: #007BFF;
-
             --subheading-color: #007BFF;
             --contact-background: white;
             --contact-text-color: #333;
@@ -39,12 +36,9 @@
             --text-color: #f0f4f8;
             --header-background: linear-gradient(90deg, #222, #444);
             --header-text-color: white;
-
-            /* নেভ বার আইকন/টেক্সট সবসময় সাদা থাকবে */
             --nav-background: linear-gradient(90deg, #222, #444);
             --nav-text-color: white;
             --nav-active-color: #00AEEF;
-
             --subheading-color: #00AEEF;
             --contact-background: #333;
             --contact-text-color: white;
@@ -102,7 +96,6 @@
             font-weight: 400;
         }
 
-        /* .page-এ সব পেইজের এক্সটার্নাল প্যাডিং থাকবে 15px */
         .page, .form-container {
             flex: 1;
             padding: 15px;
@@ -110,13 +103,12 @@
             overflow-y: auto;
         }
 
-        /* ========== হোম পেজের জন্য স্পেসিফিক স্টাইলসমূহ ========== */
         #home .subheading {
             width: 100%;
-            text-align: center;  /* “হোম” টেক্সটকে কেন্দ্রভাগে এলাইমেন্ট */
+            text-align: center;
         }
         #home .search-bar {
-            margin: 10px auto 15px auto;  /* সার্চ বক্সকে কেন্দ্রের দিকে নিয়ে যায় */
+            margin: 10px auto 15px auto;
         }
 
         .page-header {
@@ -127,21 +119,17 @@
             flex-wrap: wrap;
         }
 
-        /* subheading-এর flex:1 মুছে দেওয়া হয়েছে */
         .subheading {
             color: var(--subheading-color);
             font-size: 20px;
             margin: 0;
-            /* flex: 1; */
         }
 
-        /* সার্চ বক্স: সর্বোচ্চ 100% এর ভিতরেই থাকবে, কিন্তু
-           data-fit করার জন্য max-width: 300px দেওয়া হলো */
         .search-bar {
             position: relative;
             width: 100%;
-            max-width: 300px; /* মোবাইলের স্ট্যান্ডার্ড অনুযায়ী কমিয়ে দেওয়া হলো */
-            margin: 10px 0 15px 0; /* হোম পেজ ছাড়া অন্য জায়গাতেও একই থাকবে */
+            max-width: 300px;
+            margin: 10px 0 15px 0;
         }
         .search-bar i {
             position: absolute;
@@ -225,11 +213,10 @@
             background-color: #c82333;
         }
 
-        /* ========== ফর্মের জন্য স্টাইলসমূহ ========== */
         .form-container {
             display: none;
             flex-direction: column;
-            align-items: center; /* ইনপুট বক্সগুলোকে কেন্দ্রভাগে রাখার জন্য */
+            align-items: center;
             background-color: var(--form-background);
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -241,17 +228,15 @@
             margin: 0 auto;
             width: 90%;
         }
-        /* ফর্মের হেডিং (নতুন/এডিট) কে পুরো প্রস্থে কেন্দ্রভাগে দেখাবে */
         #formHeading {
             width: 100%;
             text-align: center;
             margin-bottom: 20px;
         }
-        /* সব .form-field-এ একই প্রস্থ ঠিক করার জন্য: */
         .form-field {
             width: 100%;
-            max-width: 300px; /* ৩টি ইনপুট বক্সের প্রস্থ এক করে */
-            margin: 10px 0;
+            max-width: 300px;
+            margin: 15px 0; /* উন্নতি: বক্সগুলোর মধ্যে ব্যবধান বাড়ানো */
         }
         .form-field label {
             display: block;
@@ -260,7 +245,7 @@
         }
         .form-field input, .form-field select {
             width: 100%;
-            padding: 10px;
+            padding: 12px; /* উন্নতি: বড় প্যাডিং ব্যবহার করা */
             border: 1px solid var(--input-border-color);
             border-radius: 5px;
             font-size: 16px;
@@ -342,7 +327,6 @@
         </div>
     </div>
 
-    <!-- হোম পেজ -->
     <div id="home" class="page">
         <h2 class="subheading">হোম</h2>
         <div class="search-bar">
@@ -352,7 +336,6 @@
         <div id="allContacts"></div>
     </div>
 
-    <!-- মিটার পেজ -->
     <div id="meter" class="page" style="display: none;">
         <div class="page-header">
             <h2 class="subheading">মিটার নাম্বার</h2>
@@ -365,7 +348,6 @@
         <div id="meterContacts"></div>
     </div>
 
-    <!-- মোবাইল পেজ -->
     <div id="mobile" class="page" style="display: none;">
         <div class="page-header">
             <h2 class="subheading">মোবাইল নাম্বার</h2>
@@ -378,17 +360,13 @@
         <div id="mobileContacts"></div>
     </div>
 
-    <!-- সার্চ রেজাল্ট পেজ (প্রয়োজনমতো দেখানো হবে) -->
     <div id="search" class="page" style="display: none;">
         <h2 class="subheading">সার্চ রেজাল্ট</h2>
         <div id="searchResults"></div>
     </div>
 
-    <!-- ফর্ম কন্টেইনার -->
     <div class="form-container" id="formContainer" style="display: none;">
         <h2 class="subheading" id="formHeading">নতুন ডাটা যোগ করুন</h2>
-
-        <!-- টাইপ সিলেক্ট -->
         <div class="form-field">
             <label>টাইপ</label>
             <select id="type" disabled>
@@ -396,19 +374,14 @@
                 <option value="mobile">মোবাইল নাম্বার</option>
             </select>
         </div>
-
-        <!-- নাম ইনপুট -->
         <div class="form-field">
             <label>নাম</label>
             <input type="text" id="name" placeholder="নাম লিখুন">
         </div>
-
-        <!-- নাম্বার ইনপুট -->
         <div class="form-field">
             <label>নাম্বার</label>
             <input type="text" id="number" placeholder="নাম্বার লিখুন">
         </div>
-
         <div class="form-buttons">
             <button class="add-btn" id="formSubmitBtn" onclick="addOrUpdateContact()">যোগ করুন</button>
             <button class="cancel-btn" onclick="showPage('home')">বাতিল</button>
@@ -416,7 +389,6 @@
         </div>
     </div>
 
-    <!-- ন্যাভিগেশন বার -->
     <div class="nav-bar">
         <div class="nav-item" data-page="home" onclick="showPage('home')">
             <i class="fas fa-home"></i><br>হোম
@@ -433,40 +405,6 @@
     </div>
 
     <script>
-        var gk_isXlsx = false;
-        var gk_xlsxFileLookup = {};
-        var gk_fileData = {};
-        function filledCell(cell) {
-          return cell !== '' && cell != null;
-        }
-        function loadFileData(filename) {
-            if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-                try {
-                    var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-                    var firstSheetName = workbook.SheetNames[0];
-                    var worksheet = workbook.Sheets[firstSheetName];
-
-                    var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                    var filteredData = jsonData.filter(row => row.some(filledCell));
-
-                    var headerRowIndex = filteredData.findIndex((row, index) =>
-                      row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-                    );
-                    if (headerRowIndex === -1 || headerRowIndex > 25) {
-                      headerRowIndex = 0;
-                    }
-
-                    var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex));
-                    csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-                    return csv;
-                } catch (e) {
-                    console.error(e);
-                    return "";
-                }
-            }
-            return gk_fileData[filename] || "";
-        }
-
         let meterContacts = JSON.parse(localStorage.getItem('meterContacts')) || [];
         let mobileContacts = JSON.parse(localStorage.getItem('mobileContacts')) || [];
         let editIndex = null;
@@ -475,7 +413,6 @@
         document.getElementById('home').style.display = 'block';
         updateDisplays();
 
-        // Apply saved mode from localStorage
         const savedMode = localStorage.getItem('mode');
         if (savedMode === 'dark') {
             document.body.classList.add('dark-mode');
@@ -556,13 +493,13 @@
         function displayContacts(containerId, contacts, pageType) {
             let container = document.getElementById(containerId);
             container.innerHTML = '';
-            contacts.forEach((contact, index) => {
+            contacts.forEach((contact) => {
                 let entry = document.createElement('div');
                 entry.className = 'contact-entry';
                 let buttons = `<button class="copy-btn" onclick="copyToClipboard('${contact.number}')">কপি</button>`;
                 if (pageType === 'meter' || pageType === 'mobile') {
-                    buttons += `<button class="edit-btn" onclick="editContact('${contact.type}', ${index})">এডিট</button>`;
-                    buttons += `<button class="delete-btn" onclick="deleteContact('${contact.type}', ${index})">ডিলিট</button>`;
+                    buttons += `<button class="edit-btn" onclick="editContact('${contact.type}', '${contact.number}')">এডিট</button>`;
+                    buttons += `<button class="delete-btn" onclick="deleteContact('${contact.type}', '${contact.number}')">ডিলিট</button>`;
                 }
                 entry.innerHTML = `
                     <div class="avatar">${contact.name.charAt(0).toUpperCase()}</div>
@@ -633,22 +570,29 @@
             }
         }
 
-        function editContact(type, index) {
-            showForm(type, index);
+        function editContact(type, number) {
+            let contacts = type === 'meter' ? meterContacts : mobileContacts;
+            let index = contacts.findIndex(c => c.number === number);
+            if (index !== -1) {
+                showForm(type, index);
+            } else {
+                alert('কন্টাক্ট পাওয়া যায়নি');
+            }
         }
 
-        function deleteContact(type, index) {
+        function deleteContact(type, number) {
             if (confirm('আপনি কি এই ডাটা ডিলিট করতে চান?')) {
-                if (type === 'meter') {
-                    meterContacts.splice(index, 1);
-                    localStorage.setItem('meterContacts', JSON.stringify(meterContacts));
-                } else if (type === 'mobile') {
-                    mobileContacts.splice(index, 1);
-                    localStorage.setItem('mobileContacts', JSON.stringify(mobileContacts));
+                let contacts = type === 'meter' ? meterContacts : mobileContacts;
+                let index = contacts.findIndex(c => c.number === number);
+                if (index !== -1) {
+                    contacts.splice(index, 1);
+                    localStorage.setItem(type + 'Contacts', JSON.stringify(contacts));
+                    updateDisplays();
+                    showPage(type);
+                    alert('ডাটা ডিলিট করা হয়েছে!');
+                } else {
+                    alert('কন্টাক্ট পাওয়া যায়নি');
                 }
-                updateDisplays();
-                showPage(type);
-                alert('ডাটা ডিলিট করা হয়েছে!');
             }
         }
 
