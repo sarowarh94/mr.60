@@ -1,51 +1,18 @@
-<script type="text/javascript">
-        var gk_isXlsx = false;
-        var gk_xlsxFileLookup = {};
-        var gk_fileData = {};
-        function filledCell(cell) {
-          return cell !== '' && cell != null;
-        }
-        function loadFileData(filename) {
-        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-            try {
-                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-                var firstSheetName = workbook.SheetNames[0];
-                var worksheet = workbook.Sheets[firstSheetName];
-
-                // Convert sheet to JSON to filter blank rows
-                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
-                var filteredData = jsonData.filter(row => row.some(filledCell));
-
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
-                var headerRowIndex = filteredData.findIndex((row, index) =>
-                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-                );
-                // Fallback
-                if (headerRowIndex === -1 || headerRowIndex > 25) {
-                  headerRowIndex = 0;
-                }
-
-                // Convert filtered JSON back to CSV
-                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
-                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-                return csv;
-            } catch (e) {
-                console.error(e);
-                return "";
-            }
-        }
-        return gk_fileData[filename] || "";
-        }
-        </script><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>কাজি টেলিকম</title>
-    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
         :root {
             --background-color: #f0f4f8;
             --text-color: #333;
@@ -68,6 +35,8 @@
             --avatar-background: linear-gradient(135deg, #00AEEF, #007BFF);
             --avatar-text-color: white;
             --placeholder-color: #aaa;
+            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --fab-background: #00AEEF;
         }
 
         body.dark-mode {
@@ -79,30 +48,31 @@
             --nav-text-color: white;
             --nav-active-color: #00AEEF;
             --subheading-color: #00AEEF;
-            --contact-background: #333;
-            --contact-text-color: white;
-            --form-background: #333;
-            --form-text-color: white;
+            --contact-background: #1e1e1e;
+            --contact-text-color: #f0f4f8;
+            --form-background: #1e1e1e;
+            --form-text-color: #f0f4f8;
             --button-background: #007BFF;
             --button-text-color: white;
             --delete-button-background: #c82333;
             --delete-button-text-color: white;
-            --input-border-color: #555;
+            --input-border-color: #444;
             --input-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
             --avatar-background: linear-gradient(135deg, #00AEEF, #007BFF);
             --avatar-text-color: white;
-            --placeholder-color: #ccc;
+            --placeholder-color: #bbb;
+            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            --fab-background: #007BFF;
         }
 
         body {
             font-family: 'Hind Siliguri', sans-serif;
             background-color: var(--background-color);
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
             min-height: 100vh;
             color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+            overflow-x: hidden;
+            padding-bottom: 80px;
         }
 
         .header {
@@ -111,12 +81,17 @@
             text-align: center;
             padding: 15px;
             border-radius: 0 0 15px 15px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             font-size: 28px;
             font-weight: 700;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: relative;
+            z-index: 10;
+            max-width: 500px;
+            margin: 0 auto;
+            width: calc(100% - 30px);
         }
         .header .title {
             flex: 1;
@@ -126,6 +101,10 @@
             cursor: pointer;
             font-size: 24px;
             margin-right: 15px;
+            transition: transform 0.3s;
+        }
+        .header .mode-toggle:hover {
+            transform: scale(1.1);
         }
         .subtitle {
             color: var(--header-text-color);
@@ -135,40 +114,33 @@
             font-weight: 400;
         }
 
-        .page, .form-container {
-            flex: 1;
-            padding: 15px;
-            padding-bottom: 60px;
-            overflow-y: auto;
+        .main-container {
+            max-width: 500px;
+            width: calc(100% - 30px);
+            margin: 0 auto;
+            padding: 20px 0;
         }
 
-        #home .subheading {
-            width: 100%;
-            text-align: center;
-        }
-        #home .search-bar {
-            margin: 10px auto 15px auto;
-        }
-
-        .page-header {
+        /* ========== হোম পেজ স্টাইল ========== */
+        .page {
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
             align-items: center;
-            margin: 15px 0;
-            flex-wrap: wrap;
         }
 
         .subheading {
             color: var(--subheading-color);
-            font-size: 20px;
-            margin: 0;
+            font-size: 22px;
+            margin: 0 0 20px 0;
+            font-weight: 600;
+            text-align: center;
+            width: 100%;
         }
 
         .search-bar {
             position: relative;
             width: 100%;
-            max-width: 300px;
-            margin: 10px 0 15px 0;
+            margin: 15px 0 20px;
         }
         .search-bar i {
             position: absolute;
@@ -180,43 +152,52 @@
         }
         .search-bar input {
             width: 100%;
-            padding: 12px 12px 12px 40px;
+            padding: 14px 15px 14px 45px;
             border: 1px solid var(--input-border-color);
-            border-radius: 20px;
+            border-radius: 25px;
             font-size: 16px;
             box-shadow: var(--input-box-shadow);
             font-family: 'Hind Siliguri', sans-serif;
             transition: border-color 0.3s, box-shadow 0.3s;
+            background-color: var(--contact-background);
+            color: var(--contact-text-color);
         }
         .search-bar input::placeholder {
             color: var(--placeholder-color);
         }
         .search-bar input:focus {
             border-color: var(--button-background);
-            box-shadow: 0 0 5px var(--button-background);
+            box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
+            outline: none;
         }
         .search-bar:focus-within i {
             color: var(--button-background);
             transform: translateY(-50%) scale(1.2);
         }
 
+        .contacts-container {
+            width: 100%;
+            margin: 0 auto;
+        }
+
         .contact-entry {
             display: flex;
             align-items: center;
-            padding: 10px;
+            padding: 15px;
             background: var(--contact-background);
-            border-radius: 10px;
-            margin-bottom: 10px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            transition: transform 0.2s;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.2s, box-shadow 0.2s;
             color: var(--contact-text-color);
         }
         .contact-entry:hover {
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
         }
         .avatar {
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             background: var(--avatar-background);
             border-radius: 50%;
             margin-right: 15px;
@@ -224,104 +205,185 @@
             align-items: center;
             justify-content: center;
             color: var(--avatar-text-color);
-            font-size: 18px;
+            font-size: 22px;
+            font-weight: 600;
+            flex-shrink: 0;
         }
         .contact-info {
             flex: 1;
-            font-size: 16px;
+            font-size: 17px;
+            min-width: 0;
         }
-        .copy-btn, .edit-btn, .delete-btn {
+        .contact-info div:first-child {
+            font-weight: 600;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .contact-info div:last-child {
+            font-size: 16px;
+            color: var(--subheading-color);
+            font-weight: 500;
+        }
+        .contact-actions {
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+        .edit-btn, .delete-btn {
             background-color: var(--button-background);
             color: var(--button-text-color);
             border: none;
-            padding: 5px 15px;
+            padding: 8px 15px;
             border-radius: 10px;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: background 0.3s, transform 0.2s;
             font-family: 'Hind Siliguri', sans-serif;
-            margin-left: 5px;
-            white-space: nowrap;
+            font-size: 15px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 7px;
         }
-        .copy-btn:hover, .edit-btn:hover {
+        .edit-btn:hover {
             background-color: #007BFF;
+            transform: translateY(-2px);
         }
         .delete-btn {
             background-color: var(--delete-button-background);
         }
         .delete-btn:hover {
             background-color: #c82333;
+            transform: translateY(-2px);
+        }
+        .copy-btn {
+            background-color: var(--button-background);
+            color: var(--button-text-color);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+            font-family: 'Hind Siliguri', sans-serif;
+            font-size: 15px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+        .copy-btn:hover {
+            background-color: #007BFF;
+            transform: translateY(-2px);
         }
 
+        /* ========== ফর্ম স্টাইল ========== */
         .form-container {
             display: none;
             flex-direction: column;
-            align-items: center;
             background-color: var(--form-background);
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            padding-bottom: 60px;
-            align-self: center;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            padding: 30px;
             color: var(--form-text-color);
-            max-width: 500px;
-            margin: 0 auto;
-            width: 90%;
+            width: 100%;
+            margin: 20px auto 40px;
         }
         #formHeading {
             width: 100%;
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
+            font-size: 24px;
         }
         .form-field {
             width: 100%;
-            max-width: 300px;
-            margin: 15px 0; /* উন্নতি: বক্সগুলোর মধ্যে ব্যবধান বাড়ানো */
+            margin: 18px 0;
         }
         .form-field label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: 700;
+            margin-bottom: 10px;
+            font-weight: 600;
+            font-size: 17px;
         }
         .form-field input, .form-field select {
             width: 100%;
-            padding: 12px; /* উন্নতি: বড় প্যাডিং ব্যবহার করা */
+            padding: 14px;
             border: 1px solid var(--input-border-color);
-            border-radius: 5px;
+            border-radius: 10px;
             font-size: 16px;
             font-family: 'Hind Siliguri', sans-serif;
+            background-color: var(--contact-background);
+            color: var(--contact-text-color);
         }
         .form-field input::placeholder {
             color: var(--placeholder-color);
         }
+        .form-field input:focus, .form-field select:focus {
+            border-color: var(--button-background);
+            box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
+            outline: none;
+        }
         .form-buttons {
             display: flex;
             justify-content: center;
-            gap: 10px;
-            margin-top: 20px;
+            gap: 15px;
+            margin-top: 25px;
             flex-wrap: wrap;
         }
         .add-btn, .cancel-btn {
             background-color: var(--button-background);
             color: var(--button-text-color);
             border: none;
-            padding: 12px 25px;
-            border-radius: 10px;
+            padding: 14px 28px;
+            border-radius: 12px;
             cursor: pointer;
-            font-size: 16px;
-            transition: background 0.3s;
+            font-size: 17px;
+            transition: background 0.3s, transform 0.2s;
             font-family: 'Hind Siliguri', sans-serif;
-            white-space: nowrap;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         .add-btn:hover, .cancel-btn:hover {
             background-color: #007BFF;
+            transform: translateY(-3px);
         }
         .cancel-btn {
             background-color: var(--delete-button-background);
         }
         .cancel-btn:hover {
             background-color: #c82333;
+            transform: translateY(-3px);
         }
 
+        /* ফ্লোটিং অ্যাকশন বাটন */
+        .fab-container {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            z-index: 100;
+        }
+        .fab {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--fab-background);
+            color: white;
+            border: none;
+            font-size: 24px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: transform 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .fab:hover {
+            transform: rotate(90deg) scale(1.1);
+        }
+
+        /* ন্যাভিগেশন বার */
         .nav-bar {
             background: var(--nav-background);
             display: flex;
@@ -330,28 +392,90 @@
             position: fixed;
             bottom: 0;
             width: 100%;
-            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 -3px 12px rgba(0, 0, 0, 0.15);
             border-top-left-radius: 15px;
             border-top-right-radius: 15px;
+            z-index: 100;
+            max-width: 500px;
+            left: 50%;
+            transform: translateX(-50%);
         }
         .nav-item {
             flex: 1;
             color: var(--nav-text-color);
             text-align: center;
             cursor: pointer;
-            transition: background-color 0.3s, color 0.3s;
-            font-size: 14px;
+            transition: transform 0.3s;
+            font-size: 15px;
+            padding: 10px 5px;
+            border-radius: 10px;
         }
         .nav-item:hover {
-            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.1);
         }
         .nav-item.active {
             color: var(--nav-active-color);
+            background: rgba(255, 255, 255, 0.15);
         }
         .nav-item i {
-            font-size: 22px;
-            margin-bottom: 5px;
+            font-size: 24px;
+            margin-bottom: 6px;
             color: var(--nav-text-color);
+            display: block;
+        }
+        .nav-item span {
+            display: block;
+            font-weight: 500;
+        }
+
+        /* এম্পটি স্টেট */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--placeholder-color);
+            background: var(--contact-background);
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            margin-top: 20px;
+            width: 100%;
+        }
+        .empty-state i {
+            font-size: 60px;
+            margin-bottom: 20px;
+            color: var(--placeholder-color);
+        }
+        .empty-state p {
+            margin: 0;
+            font-size: 18px;
+        }
+        
+        /* সাকসেস মেসেজ */
+        .success-message {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(40, 167, 69, 0.9);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-weight: 500;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            animation: fadeInOut 3s ease-in-out;
+            max-width: 500px;
+            width: calc(100% - 40px);
+        }
+        
+        @keyframes fadeInOut {
+            0% { opacity: 0; top: 10px; }
+            10% { opacity: 1; top: 20px; }
+            90% { opacity: 1; top: 20px; }
+            100% { opacity: 0; top: 10px; }
         }
     </style>
 </head>
@@ -366,80 +490,93 @@
         </div>
     </div>
 
-    <div id="home" class="page">
-        <h2 class="subheading">হোম</h2>
-        <div class="search-bar">
-            <i class="fas fa-search"></i>
-            <input type="text" id="mainSearch" placeholder="সকল ডাটা সার্চ করুন" onkeyup="searchAll()">
+    <div class="main-container">
+        <!-- হোম পেজ -->
+        <div id="home" class="page">
+            <h2 class="subheading">হোম</h2>
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="mainSearch" placeholder="সকল ডাটা সার্চ করুন" onkeyup="searchAll()">
+            </div>
+            <div class="contacts-container">
+                <div id="allContacts"></div>
+            </div>
         </div>
-        <div id="allContacts"></div>
-    </div>
 
-    <div id="meter" class="page" style="display: none;">
-        <div class="page-header">
+        <!-- মিটার পেজ -->
+        <div id="meter" class="page" style="display: none;">
             <h2 class="subheading">মিটার নাম্বার</h2>
-            <button class="add-btn" onclick="showForm('meter')">নতুন মিটার নাম্বার যোগ করুন</button>
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="meterSearch" placeholder="মিটার নাম্বার খুঁজুন" onkeyup="searchMeter()">
+            </div>
+            <div class="contacts-container">
+                <div id="meterContacts"></div>
+            </div>
         </div>
-        <div class="search-bar">
-            <i class="fas fa-search"></i>
-            <input type="text" id="meterSearch" placeholder="মিটার নাম্বার খুঁজুন" onkeyup="searchMeter()">
-        </div>
-        <div id="meterContacts"></div>
-    </div>
 
-    <div id="mobile" class="page" style="display: none;">
-        <div class="page-header">
+        <!-- মোবাইল পেজ -->
+        <div id="mobile" class="page" style="display: none;">
             <h2 class="subheading">মোবাইল নাম্বার</h2>
-            <button class="add-btn" onclick="showForm('mobile')">নতুন মোবাইল নাম্বার যোগ করুন</button>
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="mobileSearch" placeholder="মোবাইল নাম্বার খুঁজুন" onkeyup="searchMobile()">
+            </div>
+            <div class="contacts-container">
+                <div id="mobileContacts"></div>
+            </div>
         </div>
-        <div class="search-bar">
-            <i class="fas fa-search"></i>
-            <input type="text" id="mobileSearch" placeholder="মোবাইল নাম্বার খুঁজুন" onkeyup="searchMobile()">
+
+        <!-- ফর্ম কন্টেইনার -->
+        <div class="form-container" id="formContainer" style="display: none;">
+            <h2 class="subheading" id="formHeading">নতুন ডাটা যোগ করুন</h2>
+
+            <div class="form-field">
+                <label>টাইপ</label>
+                <select id="type" disabled>
+                    <option value="meter">মিটার নাম্বার</option>
+                    <option value="mobile">মোবাইল নাম্বার</option>
+                </select>
+            </div>
+
+            <div class="form-field">
+                <label>নাম</label>
+                <input type="text" id="name" placeholder="নাম লিখুন">
+            </div>
+
+            <div class="form-field">
+                <label>নাম্বার</label>
+                <input type="text" id="number" placeholder="নাম্বার লিখুন">
+            </div>
+
+            <div class="form-buttons">
+                <button class="add-btn" id="formSubmitBtn" onclick="addOrUpdateContact()"><i class="fas fa-plus"></i>যোগ করুন</button>
+                <button class="cancel-btn" onclick="showPage('home')"><i class="fas fa-times"></i>বাতিল</button>
+                <button class="delete-btn" id="formDeleteBtn" onclick="deleteContactFromForm()" style="display: none;"><i class="fas fa-trash"></i>ডিলিট</button>
+            </div>
         </div>
-        <div id="mobileContacts"></div>
     </div>
 
-    <div id="search" class="page" style="display: none;">
-        <h2 class="subheading">সার্চ রেজাল্ট</h2>
-        <div id="searchResults"></div>
+    <!-- ফ্লোটিং অ্যাকশন বাটন -->
+    <div class="fab-container" id="fabContainer" style="display: none;">
+        <button class="fab" id="fabButton">
+            <i class="fas fa-plus"></i>
+        </button>
     </div>
 
-    <div class="form-container" id="formContainer" style="display: none;">
-        <h2 class="subheading" id="formHeading">নতুন ডাটা যোগ করুন</h2>
-        <div class="form-field">
-            <label>টাইপ</label>
-            <select id="type" disabled>
-                <option value="meter">মিটার নাম্বার</option>
-                <option value="mobile">মোবাইল নাম্বার</option>
-            </select>
-        </div>
-        <div class="form-field">
-            <label>নাম</label>
-            <input type="text" id="name" placeholder="নাম লিখুন">
-        </div>
-        <div class="form-field">
-            <label>নাম্বার</label>
-            <input type="text" id="number" placeholder="নাম্বার লিখুন">
-        </div>
-        <div class="form-buttons">
-            <button class="add-btn" id="formSubmitBtn" onclick="addOrUpdateContact()">যোগ করুন</button>
-            <button class="cancel-btn" onclick="showPage('home')">বাতিল</button>
-            <button class="delete-btn" id="formDeleteBtn" onclick="deleteContactFromForm()" style="display: none;">ডিলিট</button>
-        </div>
-    </div>
-
+    <!-- ন্যাভিগেশন বার -->
     <div class="nav-bar">
-        <div class="nav-item" data-page="home" onclick="showPage('home')">
-            <i class="fas fa-home"></i><br>হোম
+        <div class="nav-item active" data-page="home" onclick="showPage('home')">
+            <i class="fas fa-home"></i><span>হোম</span>
         </div>
         <div class="nav-item" data-page="meter" onclick="showPage('meter')">
-            <i class="fas fa-bolt"></i><br>মিটার
+            <i class="fas fa-bolt"></i><span>মিটার</span>
         </div>
         <div class="nav-item" data-page="mobile" onclick="showPage('mobile')">
-            <i class="fas fa-mobile-alt"></i><br>মোবাইল
+            <i class="fas fa-mobile-alt"></i><span>মোবাইল</span>
         </div>
         <div class="nav-item search-nav" onclick="openSearch()">
-            <i class="fas fa-search"></i><br>সার্চ
+            <i class="fas fa-search"></i><span>সার্চ</span>
         </div>
     </div>
 
@@ -448,10 +585,15 @@
         let mobileContacts = JSON.parse(localStorage.getItem('mobileContacts')) || [];
         let editIndex = null;
         let editType = null;
+        
+        // For fixing edit issues
+        let currentMeterSearchResults = [];
+        let currentMobileSearchResults = [];
 
-        document.getElementById('home').style.display = 'block';
+        document.getElementById('home').style.display = 'flex';
         updateDisplays();
 
+        // Apply saved mode from localStorage
         const savedMode = localStorage.getItem('mode');
         if (savedMode === 'dark') {
             document.body.classList.add('dark-mode');
@@ -467,9 +609,20 @@
             document.getElementById('home').style.display = 'none';
             document.getElementById('meter').style.display = 'none';
             document.getElementById('mobile').style.display = 'none';
-            document.getElementById('search').style.display = 'none';
             document.getElementById('formContainer').style.display = 'none';
-            document.getElementById(pageId).style.display = 'block';
+            
+            if (pageId === 'home' || pageId === 'meter' || pageId === 'mobile') {
+                document.getElementById(pageId).style.display = 'flex';
+            } else if (pageId === 'formContainer') {
+                document.getElementById(pageId).style.display = 'block';
+            }
+
+            // Show/hide FAB
+            if (pageId === 'meter' || pageId === 'mobile') {
+                document.getElementById('fabContainer').style.display = 'block';
+            } else {
+                document.getElementById('fabContainer').style.display = 'none';
+            }
 
             document.querySelectorAll('.nav-item').forEach(item => {
                 item.classList.remove('active');
@@ -479,6 +632,16 @@
                 activeItem.classList.add('active');
             }
         }
+
+        // FAB button click handler
+        document.getElementById('fabButton').addEventListener('click', function() {
+            const activePage = document.querySelector('.page[style*="display: flex"]').id;
+            if (activePage === 'meter') {
+                showForm('meter');
+            } else if (activePage === 'mobile') {
+                showForm('mobile');
+            }
+        });
 
         function openSearch() {
             showPage('home');
@@ -515,36 +678,79 @@
 
         function searchMeter() {
             let input = document.getElementById('meterSearch').value.toLowerCase();
-            let filtered = meterContacts.filter(contact => 
+            currentMeterSearchResults = meterContacts.filter(contact => 
                 contact.name.toLowerCase().includes(input) || contact.number.includes(input)
             );
-            displayContacts('meterContacts', filtered, 'meter');
+            displayContacts('meterContacts', currentMeterSearchResults, 'meter');
         }
 
         function searchMobile() {
             let input = document.getElementById('mobileSearch').value.toLowerCase();
-            let filtered = mobileContacts.filter(contact => 
+            currentMobileSearchResults = mobileContacts.filter(contact => 
                 contact.name.toLowerCase().includes(input) || contact.number.includes(input)
             );
-            displayContacts('mobileContacts', filtered, 'mobile');
+            displayContacts('mobileContacts', currentMobileSearchResults, 'mobile');
         }
 
         function displayContacts(containerId, contacts, pageType) {
             let container = document.getElementById(containerId);
             container.innerHTML = '';
-            contacts.forEach((contact) => {
+            
+            if (contacts.length === 0) {
+                let emptyState = document.createElement('div');
+                emptyState.className = 'empty-state';
+                if (pageType === 'home') {
+                    emptyState.innerHTML = `
+                        <i class="fas fa-inbox"></i>
+                        <p>কোনো ডাটা পাওয়া যায়নি</p>
+                        <p>নতুন ডাটা যোগ করুন নিচের নেভিগেশন মেনু থেকে</p>
+                    `;
+                } else {
+                    emptyState.innerHTML = `
+                        <i class="fas fa-inbox"></i>
+                        <p>কোনো ${pageType === 'meter' ? 'মিটার' : 'মোবাইল'} নাম্বার পাওয়া যায়নি</p>
+                        <p>উপরে '+' বাটনে ক্লিক করে নতুন নাম্বার যোগ করুন</p>
+                    `;
+                }
+                container.appendChild(emptyState);
+                return;
+            }
+            
+            contacts.forEach((contact, index) => {
                 let entry = document.createElement('div');
                 entry.className = 'contact-entry';
-                let buttons = `<button class="copy-btn" onclick="copyToClipboard('${contact.number}')">কপি</button>`;
-                if (pageType === 'meter' || pageType === 'mobile') {
-                    buttons += `<button class="edit-btn" onclick="editContact('${contact.type}', '${contact.number}')">এডিট</button>`;
-                    buttons += `<button class="delete-btn" onclick="deleteContact('${contact.type}', '${contact.number}')">ডিলিট</button>`;
+                
+                // Fix for edit issues - store the original index
+                let originalIndex;
+                if (pageType === 'meter') {
+                    originalIndex = meterContacts.findIndex(c => 
+                        c.name === contact.name && c.number === contact.number
+                    );
+                } else if (pageType === 'mobile') {
+                    originalIndex = mobileContacts.findIndex(c => 
+                        c.name === contact.name && c.number === contact.number
+                    );
                 }
+                
+                let buttons = `<div class="contact-actions">`;
+                
+                // Only show copy button on home page
+                if (pageType === 'home') {
+                    buttons += `<button class="copy-btn" onclick="copyToClipboard('${contact.number}')"><i class="fas fa-copy"></i>কপি</button>`;
+                }
+                
+                if (pageType === 'meter' || pageType === 'mobile') {
+                    buttons += `<button class="edit-btn" onclick="editContact('${contact.type}', ${originalIndex})"><i class="fas fa-edit"></i>এডিট</button>`;
+                    buttons += `<button class="delete-btn" onclick="deleteContact('${contact.type}', ${originalIndex})"><i class="fas fa-trash"></i>ডিলিট</button>`;
+                }
+                
+                buttons += `</div>`;
+                
                 entry.innerHTML = `
                     <div class="avatar">${contact.name.charAt(0).toUpperCase()}</div>
                     <div class="contact-info">
-                        <div>${contact.name} - ${contact.type === 'meter' ? 'মিটার' : 'মোবাইল'}</div>
-                        <div>${contact.number}</div>
+                        <div>${contact.name}</div>
+                        <div>${contact.type === 'meter' ? 'মিটার' : 'মোবাইল'}: ${contact.number}</div>
                     </div>
                     ${buttons}
                 `;
@@ -563,11 +769,11 @@
                 document.getElementById('name').value = contact.name;
                 document.getElementById('number').value = contact.number;
                 document.getElementById('formHeading').textContent = 'ডাটা এডিট করুন';
-                document.getElementById('formSubmitBtn').textContent = 'আপডেট';
+                document.getElementById('formSubmitBtn').innerHTML = '<i class="fas fa-sync-alt"></i>আপডেট';
                 document.getElementById('formDeleteBtn').style.display = 'inline-block';
             } else {
                 document.getElementById('formHeading').textContent = 'নতুন ডাটা যোগ করুন';
-                document.getElementById('formSubmitBtn').textContent = 'যোগ করুন';
+                document.getElementById('formSubmitBtn').innerHTML = '<i class="fas fa-plus"></i>যোগ করুন';
                 document.getElementById('formDeleteBtn').style.display = 'none';
                 clearForm();
             }
@@ -603,35 +809,39 @@
                 clearForm();
                 showPage(type);
                 updateDisplays();
-                alert(editIndex === null ? 'নতুন নাম্বার যোগ করা হয়েছে!' : 'ডাটা আপডেট করা হয়েছে!');
+                showSuccessMessage(editIndex === null ? 'নতুন নাম্বার যোগ করা হয়েছে!' : 'ডাটা আপডেট করা হয়েছে!');
             } else {
                 alert('অনুগ্রহ করে নাম এবং নাম্বার পূরণ করুন।');
             }
         }
 
-        function editContact(type, number) {
-            let contacts = type === 'meter' ? meterContacts : mobileContacts;
-            let index = contacts.findIndex(c => c.number === number);
-            if (index !== -1) {
-                showForm(type, index);
-            } else {
-                alert('কন্টাক্ট পাওয়া যায়নি');
-            }
+        function showSuccessMessage(message) {
+            const successDiv = document.createElement('div');
+            successDiv.className = 'success-message';
+            successDiv.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+            document.body.appendChild(successDiv);
+            
+            setTimeout(() => {
+                document.body.removeChild(successDiv);
+            }, 3000);
         }
 
-        function deleteContact(type, number) {
+        function editContact(type, index) {
+            showForm(type, index);
+        }
+
+        function deleteContact(type, index) {
             if (confirm('আপনি কি এই ডাটা ডিলিট করতে চান?')) {
-                let contacts = type === 'meter' ? meterContacts : mobileContacts;
-                let index = contacts.findIndex(c => c.number === number);
-                if (index !== -1) {
-                    contacts.splice(index, 1);
-                    localStorage.setItem(type + 'Contacts', JSON.stringify(contacts));
-                    updateDisplays();
-                    showPage(type);
-                    alert('ডাটা ডিলিট করা হয়েছে!');
-                } else {
-                    alert('কন্টাক্ট পাওয়া যায়নি');
+                if (type === 'meter') {
+                    meterContacts.splice(index, 1);
+                    localStorage.setItem('meterContacts', JSON.stringify(meterContacts));
+                } else if (type === 'mobile') {
+                    mobileContacts.splice(index, 1);
+                    localStorage.setItem('mobileContacts', JSON.stringify(mobileContacts));
                 }
+                updateDisplays();
+                showPage(type);
+                showSuccessMessage('ডাটা ডিলিট করা হয়েছে!');
             }
         }
 
@@ -649,7 +859,7 @@
                 clearForm();
                 showPage('home');
                 updateDisplays();
-                alert('ডাটা ডিলিট করা হয়েছে!');
+                showSuccessMessage('ডাটা ডিলিট করা হয়েছে!');
             }
         }
 
@@ -666,7 +876,16 @@
 
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(() => {
-                alert('নাম্বার কপি করা হয়েছে: ' + text);
+                showSuccessMessage('নাম্বার কপি করা হয়েছে: ' + text);
+            }).catch(err => {
+                // Fallback for browsers that don't support navigator.clipboard
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showSuccessMessage('নাম্বার কপি করা হয়েছে: ' + text);
             });
         }
     </script>
