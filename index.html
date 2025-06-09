@@ -110,8 +110,12 @@
             color: var(--header-text-color);
             text-align: center;
             margin-top: 5px;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 400;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding: 0 10px;
         }
 
         .main-container {
@@ -131,7 +135,7 @@
         .subheading {
             color: var(--subheading-color);
             font-size: 22px;
-            margin: 0 0 20px 0;
+            margin: 0 0 10px 0;
             font-weight: 600;
             text-align: center;
             width: 100%;
@@ -140,7 +144,7 @@
         .search-bar {
             position: relative;
             width: 100%;
-            margin: 15px 0 20px;
+            margin: 10px 0 15px;
         }
         .search-bar i {
             position: absolute;
@@ -471,11 +475,39 @@
             width: calc(100% - 40px);
         }
         
+        /* ওয়ার্নিং মেসেজ */
+        .warning-message {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 193, 7, 0.9);
+            color: #333;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-weight: 500;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            animation: fadeInOut 3s ease-in-out;
+            max-width: 500px;
+            width: calc(100% - 40px);
+        }
+        
         @keyframes fadeInOut {
             0% { opacity: 0; top: 10px; }
             10% { opacity: 1; top: 20px; }
             90% { opacity: 1; top: 20px; }
             100% { opacity: 0; top: 10px; }
+        }
+        
+        /* সাবটাইটেল রেসপন্সিভনেস */
+        @media (max-width: 400px) {
+            .subtitle {
+                font-size: 13px;
+            }
         }
     </style>
 </head>
@@ -493,7 +525,6 @@
     <div class="main-container">
         <!-- হোম পেজ -->
         <div id="home" class="page">
-            <h2 class="subheading">হোম</h2>
             <div class="search-bar">
                 <i class="fas fa-search"></i>
                 <input type="text" id="mainSearch" placeholder="সকল ডাটা সার্চ করুন" onkeyup="searchAll()">
@@ -505,7 +536,6 @@
 
         <!-- মিটার পেজ -->
         <div id="meter" class="page" style="display: none;">
-            <h2 class="subheading">মিটার নাম্বার</h2>
             <div class="search-bar">
                 <i class="fas fa-search"></i>
                 <input type="text" id="meterSearch" placeholder="মিটার নাম্বার খুঁজুন" onkeyup="searchMeter()">
@@ -517,7 +547,6 @@
 
         <!-- মোবাইল পেজ -->
         <div id="mobile" class="page" style="display: none;">
-            <h2 class="subheading">মোবাইল নাম্বার</h2>
             <div class="search-bar">
                 <i class="fas fa-search"></i>
                 <input type="text" id="mobileSearch" placeholder="মোবাইল নাম্বার খুঁজুন" onkeyup="searchMobile()">
@@ -786,6 +815,26 @@
             let number = document.getElementById('number').value;
 
             if (name && number) {
+                // Check for duplicate number in the same type
+                let isDuplicate = false;
+                let contactList = type === 'meter' ? meterContacts : mobileContacts;
+                
+                // Check for duplicate when adding new contact
+                if (editIndex === null) {
+                    isDuplicate = contactList.some(contact => contact.number === number);
+                } 
+                // Check for duplicate when editing (excluding the current contact)
+                else {
+                    isDuplicate = contactList.some((contact, index) => 
+                        index !== editIndex && contact.number === number
+                    );
+                }
+
+                if (isDuplicate) {
+                    showWarningMessage(`এই ${type === 'meter' ? 'মিটার' : 'মোবাইল'} নাম্বার ইতিমধ্যে সংরক্ষিত আছে!`);
+                    return;
+                }
+
                 let contact = { name, number, type };
                 if (editIndex !== null) {
                     if (type === 'meter') {
@@ -811,7 +860,7 @@
                 updateDisplays();
                 showSuccessMessage(editIndex === null ? 'নতুন নাম্বার যোগ করা হয়েছে!' : 'ডাটা আপডেট করা হয়েছে!');
             } else {
-                alert('অনুগ্রহ করে নাম এবং নাম্বার পূরণ করুন।');
+                showWarningMessage('অনুগ্রহ করে নাম এবং নাম্বার পূরণ করুন।');
             }
         }
 
@@ -823,6 +872,17 @@
             
             setTimeout(() => {
                 document.body.removeChild(successDiv);
+            }, 3000);
+        }
+        
+        function showWarningMessage(message) {
+            const warningDiv = document.createElement('div');
+            warningDiv.className = 'warning-message';
+            warningDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${message}`;
+            document.body.appendChild(warningDiv);
+            
+            setTimeout(() => {
+                document.body.removeChild(warningDiv);
             }, 3000);
         }
 
