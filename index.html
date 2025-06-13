@@ -40,6 +40,7 @@
             --backup-button-bg: #28a745;
             --restore-button-bg: #ffc107;
             --settings-button-bg: #6c757d;
+            --pay-bill-bg: #17a2b8;
         }
 
         body.dark-mode {
@@ -69,6 +70,7 @@
             --backup-button-bg: #218838;
             --restore-button-bg: #e0a800;
             --settings-button-bg: #5a6268;
+            --pay-bill-bg: #138496;
         }
 
         body {
@@ -250,7 +252,7 @@
             gap: 10px;
             flex-shrink: 0;
         }
-        .edit-btn, .delete-btn, .backup-btn, .restore-btn, .settings-btn {
+        .edit-btn, .delete-btn, .backup-btn, .restore-btn, .settings-btn, .pay-btn {
             background-color: var(--button-background);
             color: var(--button-text-color);
             border: none;
@@ -296,6 +298,13 @@
         }
         .settings-btn:hover {
             background-color: #5a6268;
+            transform: translateY(-2px);
+        }
+        .pay-btn {
+            background-color: var(--pay-bill-bg);
+        }
+        .pay-btn:hover {
+            background-color: #138496;
             transform: translateY(-2px);
         }
         .copy-btn {
@@ -679,7 +688,7 @@
             </div>
         </div>
 
-        <!-- মিটার পেজ -->
+        <!-- পে বিল পেজ -->
         <div id="meter" class="page" style="display: none;">
             <div class="search-bar">
                 <i class="fas fa-search"></i>
@@ -733,14 +742,6 @@
                         </div>
                     </div>
                 </div>
-                
-                <div class="backup-card">
-                    <h2>ব্যাকআপ নির্দেশিকা</h2>
-                    <p>1. নিয়মিত আপনার ডাটা ব্যাকআপ করুন</p>
-                    <p>2. ব্যাকআপ ফাইল নিরাপদ স্থানে সংরক্ষণ করুন</p>
-                    <p>3. নতুন ডিভাইসে ডাটা রিস্টোর করতে ফাইলটি ব্যবহার করুন</p>
-                    <p>4. ডাটা হারানো এড়াতে সপ্তাহে অন্তত একবার ব্যাকআপ করুন</p>
-                </div>
             </div>
         </div>
 
@@ -787,7 +788,7 @@
             <i class="fas fa-home"></i><span>হোম</span>
         </div>
         <div class="nav-item" data-page="meter" onclick="showPage('meter')">
-            <i class="fas fa-bolt"></i><span>মিটার</span>
+            <i class="fas fa-file-invoice-dollar"></i><span>পে বিল</span>
         </div>
         <div class="nav-item" data-page="mobile" onclick="showPage('mobile')">
             <i class="fas fa-mobile-alt"></i><span>মোবাইল</span>
@@ -1164,8 +1165,13 @@
             link.href = dataUrl;
             link.click();
             
-            // Update last backup date
-            lastBackupDate = new Date().toLocaleString();
+            // Update last backup date in "dd-mm-yyyy" format
+            const today = new Date();
+            const day = String(today.getDate()).padStart(2, '0');
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const year = today.getFullYear();
+            lastBackupDate = `${day}-${month}-${year}`;
+            
             localStorage.setItem('lastBackupDate', lastBackupDate);
             updateBackupStats();
             
